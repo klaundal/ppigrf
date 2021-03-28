@@ -43,14 +43,15 @@ Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
 The output will have shape `(4, 2, 3)`.
 
 ## Why?
-There are lots of Python modules that can calculate IGRF values. Most are wrappers of Fortran code, which can be tricky to compile. This version is pure Python. I also prefer the ppigrf interface over the alternatives.
-
+There are lots of Python modules that can calculate IGRF values. Most are wrappers of Fortran code, which can be tricky to compile. This version is pure Python. For most applications it is still quite fast. I also prefer the ppigrf interface over the alternatives.
 
 ## Notes
 The model coefficients are read from an .shc file. This is a file format that is used for certain spherical harmonic magnetic field models. See a selection of .shc model files here:
 https://github.com/ESA-VirES/MagneticModel/blob/staging/eoxmagmod/eoxmagmod/data/
 
 It should be straightforward to swap the IGRF .shc file with another model, but keep in mind that the time dependence may be implemented differently in other models. IGRF, and this code, uses linear interpolation between model updates, and changing the model file will not change the ppigrf interpolation setup. 
+
+The code is vectorized, so it will be quite fast, but probably not as fast as compiled Fortran code. One application which may require more optimization is field line tracing: In the current implementation, the coefficient files are loaded and interpolated in time for every function call, which gives a lot of unnecessary overhead.
 
 
 ## Contact

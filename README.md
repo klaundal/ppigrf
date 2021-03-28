@@ -1,7 +1,9 @@
 # Pure Python International Geomagnetic Reference Field
 Pure Python code to calculate IGRF model predictions. The IGRF is a model of the Earth's main magnetic field that is updated every 5 years. 
 
-Calculations are all vectorized, so calculations should be pretty fast.  
+The code is vectorized, so calculations should be pretty fast.  
+
+TODO: Some more testing + code documentation
 
 ## How?
 The only dependencies are Numpy and Pandas. There is no install. Just copy ppigrf.py and IGRF13.shc to your working directory and you are good to go. Or have the ppigrf directory somewhere that Python can find it. Then you should be able to import like this:
@@ -29,7 +31,7 @@ phi   = 4    # degrees east (same as lon)
 Br, Btheta, Bphi = ppigrf.igrf_gc(r, theta, phi, date) # returns radial, south, east
 ```
 
-It is also possible to calculate magnetic field values on a grid. The code uses broadcasting rules for the coordinate inputs. You can also pass multiple dates. If you pass `K` time stamps and coordinates with a combined shape of e.g., `(L, M, N)`, the output will have shape `(K, L, M, N)`. Example:
+It is also possible to calculate magnetic field values on a grid. The code uses broadcasting rules for the coordinate inputs. You can also pass multiple dates. If you pass `K` time stamps, together with coordinates with a combined shape of e.g., `(L, M, N)`, the output will have shape `(K, L, M, N)`. Example:
 ```python
 lon = np.array([20, 120, 220])
 lat = np.array([[60, 60, 60], [-60, -60, -60]])

@@ -27,29 +27,29 @@ Pure Python implementation of IGRF.
 
 Example usage:
 --------------
-    import numpy as np
-    from datetime import datetime
-    import ppigrf
+import numpy as np
+from datetime import datetime
+import ppigrf
 
-    # GEODETIC
-    lon = 5.32415  # degrees east
-    lat = 60.39299 # degrees north
-    h   = 0        # kilometers above sea level
-    date = datetime(2021, 3, 28)
-    Be, Bn, Bu = ppigrf.igrf(lon, lat, h, date) # returns east, north, up
+# GEODETIC
+lon = 5.32415  # degrees east
+lat = 60.39299 # degrees north
+h   = 0        # kilometers above sea level
+date = datetime(2021, 3, 28)
+Be, Bn, Bu = ppigrf.igrf(lon, lat, h, date) # returns east, north, up
 
-    # GEOCENTRIC
-    r     = 6500 # kilometers from center of Earht
-    theta = 30   # colatitude in degrees
-    phi   = 4    # degrees east (same as lon)
-    Br, Btheta, Bphi = ppigrf.igrf_gc(r, theta, phi, date) # returns radial, south, east
+# GEOCENTRIC
+r     = 6500 # kilometers from center of Earht
+theta = 30   # colatitude in degrees
+phi   = 4    # degrees east (same as lon)
+Br, Btheta, Bphi = ppigrf.igrf_gc(r, theta, phi, date) # returns radial, south, east
 
-    # GRID
-    lon = np.array([20, 120, 220])
-    lat = np.array([[60, 60, 60], [-60, -60, -60]])
-    h   = 0
-    dates = [datetime(y, 1, 1) for y in np.arange(1960, 2021, 20)]
-    Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
+# GRID
+lon = np.array([20, 120, 220])
+lat = np.array([[60, 60, 60], [-60, -60, -60]])
+h   = 0
+dates = [datetime(y, 1, 1) for y in np.arange(1960, 2021, 20)]
+Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
 
 
 

@@ -246,9 +246,7 @@ def read_shc(filename):
 
     Note
     ----
-    This code does have any special treatment of "secular variation" coefficients. Instead, the SV coefficients of IGRF should be used 
-    to make gauss coefficients. This must be done prior to this code 
-    (when making the .shc file).
+    This code has no special treatment of "secular variation" coefficients. Instead, the SV coefficients of IGRF should be used to make gauss coefficients. This must be done prior to this code (when making the .shc file).
     """
 
     header = 2
@@ -293,8 +291,6 @@ def read_shc(filename):
 def geod2geoc(gdlat, height, Bn, Bu):
     """
     Convert from geocentric to geodetic coordinates
-
-    Based on Matlab code by Nils Olsen, DTU
 
     Example:
     --------

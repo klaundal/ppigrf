@@ -5,7 +5,6 @@ Pure Python implementation of IGRF.
 The code should work with any main field model specified by coefficient in a shc file,
 assuming linear interpolation between model times. 
 
-https://github.com/ESA-VirES/MagneticModel/blob/staging/eoxmagmod/eoxmagmod/data/
 
 
 Example usage:
@@ -391,12 +390,15 @@ def igrf_gc(r, theta, phi, date, coeff_fn = shc_fn):
     # read coefficient file:
     g, h = read_shc(coeff_fn)
 
+    if not hasattr(date, '__iter__'):
+        date = np.array([date])
+    else:
+        date = np.array(date)
+
     if np.any(date > g.index[-1]) or np.any(date < g.index[0]):
         print('Warning: You provided date(s) not covered by coefficient file \n({} to {})'.format(
               g.index[0].date(), g.index[-1].date()))
 
-    if not hasattr(date, '__iter__'):
-        date = [date] 
 
     # convert input to arrays in case they aren't
     r, theta, phi = tuple(map(lambda x: np.array(x, ndmin = 1), [r, theta, phi]))
@@ -467,8 +469,6 @@ def igrf(lon, lat, h, date):
     theta, r, _, __ = geod2geoc(lat, h, h, h)
     phi = lon
 
-    print(r, 90 - theta - lat)
-
     # calculate geocentric components of IGRF:
     Br, Btheta, Bphi = igrf_gc(r, theta, phi, date)
     Be = Bphi
@@ -483,18 +483,26 @@ def igrf(lon, lat, h, date):
 
 
 if __name__ == '__main__':
-    
+
     from datetime import datetime
 
-    dates = pd.date_range('1999-01-01', '2035-01-01', freq = '1Y') + pd.DateOffset(days = 1)
-    lat = np.array([0, 45, 80])
-    lon = 0
-    h = 0
+    # GEODETIC
+    lon = 5.32415  # degrees east
+    lat = 60.39299 # degrees north
+    h   = 0        # kilometers above sea level
+    date = datetime(2021, 3, 28)
+    Be, Bn, Bu = ppigrf.igrf(lon, lat, h, date) # returns east, north, up
 
-    Be, Bn, Bu = igrf(lon, lat, h, dates)
+    # GEOCENTRIC
+    r     = 6500 # kilometers from center of Earht
+    theta = 30   # colatitude in degrees
+    phi   = 4    # degrees east (same as lon)
+    Br, Btheta, Bphi = ppigrf.igrf_gc(r, theta, phi, date) # returns radial, south, east
 
-    k = pd.DataFrame({'Be':Be[:, 1], 'Bn':Bn[:, 1], 'Bu':Bu[:, 1]}, index = dates)
-    print(k)
+    # GRID
+    lon = np.array([20, 120, 220])
+    lat = np.array([[60, 60, 60], [-60, -60, -60]])
+    h   = 0
+    dates = [datetime(y, 1, 1) for y in np.arange(1960, 2021, 20)]
+    Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
 
-
-    print(igrf(30.3, 78.3, 131, datetime(2021, 3, 28)))

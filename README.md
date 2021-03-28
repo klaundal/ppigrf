@@ -56,6 +56,6 @@ It should be straightforward to swap the IGRF .shc file with another model, but 
 ## Contact
 If you find errors, please let me know! 
 
-You don't need to ask permission to copy or use this code, but I would be happy to know if you do. 
+You don't need permission to copy or use this code, but I would be happy to know if it is useful for anyone else. 
 
 karl.laundal at uib.no

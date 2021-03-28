@@ -43,7 +43,9 @@ Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
 The output will have shape `(4, 2, 3)`.
 
 ## Why?
-There are lots of Python modules that can calculate IGRF values. Most are wrappers of Fortran code, which can be tricky to compile. This version is pure Python. For most applications it is still quite fast. I also prefer the ppigrf interface over the alternatives.
+There are lots of Python modules that can calculate IGRF values. Most are wrappers of Fortran code, which can be tricky to compile. This version is pure Python. For most applications it is still quite fast. I also prefer the ppigrf interface over the alternatives. 
+
+The code is also super portable: Just copy ppigrf.py and the .shc file to your project and you're done.
 
 ## Notes
 The model coefficients are read from an .shc file. This is a file format that is used for certain spherical harmonic magnetic field models. See a selection of .shc model files here:

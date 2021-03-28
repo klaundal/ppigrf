@@ -81,7 +81,7 @@ basepath = os.path.dirname(__file__)
 shc_fn = basepath + '/IGRF13.shc' # Default shc file
 
 # Geomagnetic reference radius:
-REFRE = 6371.2 # km
+RE = 6371.2 # km
 
 # World Geodetic System 84 parameters:
 WGS84_e2 = 0.00669437999014
@@ -246,7 +246,10 @@ def read_shc(filename):
 
     Note
     ----
-    This code has no special treatment of "secular variation" coefficients. Instead, the SV coefficients of IGRF should be used to make gauss coefficients. This must be done prior to this code (when making the .shc file).
+    This code has no special treatment of "secular variation" coefficients. 
+    Instead, the SV coefficients of IGRF should be used to make gauss 
+    coefficients. This must be done prior to this code (when making the 
+    .shc file).
     """
 
     header = 2
@@ -479,7 +482,6 @@ def igrf_gc(r, theta, phi, date, coeff_fn = shc_fn):
         print('Warning: You provided date(s) not covered by coefficient file \n({} to {})'.format(
               g.index[0].date(), g.index[-1].date()))
 
-
     # convert input to arrays in case they aren't
     r, theta, phi = tuple(map(lambda x: np.array(x, ndmin = 1), [r, theta, phi]))
 
@@ -516,17 +518,17 @@ def igrf_gc(r, theta, phi, date, coeff_fn = shc_fn):
     nn, mm = np.tile(n, 2), np.tile(m, 2)
 
     # calculate Br:
-    G  = (REFRE / r) ** (nn + 2) * (nn + 1) * np.hstack((P * cosmphi, P * sinmphi))
+    G  = (RE / r) ** (nn + 2) * (nn + 1) * np.hstack((P * cosmphi, P * sinmphi))
     Br = G.dot(np.hstack((g.values, h.values)).T).T # shape (n_times, n_coords)
 
     # calculate Btheta:
-    G  = -(REFRE / r) ** (nn + 1) * np.hstack((dP * cosmphi, dP * sinmphi)) \
-         * REFRE / r
+    G  = -(RE / r) ** (nn + 1) * np.hstack((dP * cosmphi, dP * sinmphi)) \
+         * RE / r
     Btheta = G.dot(np.hstack((g.values, h.values)).T).T # shape (n_times, n_coords)
 
     # calculate Bphi:
-    G  = -(REFRE / r) ** (nn + 1) * mm * np.hstack((-P * sinmphi, P * cosmphi)) \
-         * REFRE / r / np.sin(theta * d2r)
+    G  = -(RE / r) ** (nn + 1) * mm * np.hstack((-P * sinmphi, P * cosmphi)) \
+         * RE / r / np.sin(theta * d2r)
     Bphi = G.dot(np.hstack((g.values, h.values)).T).T # shape (n_times, n_coords)
 
     # reshape and return

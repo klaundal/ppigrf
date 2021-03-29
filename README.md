@@ -53,7 +53,7 @@ https://github.com/ESA-VirES/MagneticModel/blob/staging/eoxmagmod/eoxmagmod/data
 
 It should be straightforward to swap the IGRF .shc file with another model, but keep in mind that the time dependence may be implemented differently in other models. IGRF, and this code, uses linear interpolation between model updates, and changing the model file will not change the ppigrf interpolation setup. 
 
-The code is vectorized, so it will be quite fast, but probably not as fast as compiled Fortran code. One application which may require more optimization is field line tracing: In the current implementation, the coefficient files are loaded and interpolated in time for every function call, which gives a lot of unnecessary overhead.
+The code is vectorized, so it will be quite fast, but probably not as fast as compiled Fortran code. One application which may require more optimization is field line tracing: In the current implementation, the coefficients are loaded and interpolated in time for every function call, which gives a lot of unnecessary overhead.
 
 
 ## Contact

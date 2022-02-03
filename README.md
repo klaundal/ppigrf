@@ -1,5 +1,6 @@
 # Pure Python International Geomagnetic Reference Field
 [![DOI](https://zenodo.org/badge/352365168.svg)](https://zenodo.org/badge/latestdoi/352365168)
+
 Pure Python code to calculate IGRF model predictions. The IGRF is a model of the Earth's main magnetic field that is updated every 5 years.
 See https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html for details and https://doi.org/10.1186/s40623-020-01163-9 for even more details.
 

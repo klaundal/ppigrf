@@ -21,7 +21,7 @@ lat = 60.39299 # degrees north
 h   = 0        # kilometers above sea level
 date = datetime(2021, 3, 28)
 
-Be, Bn, Bu = ppgirf.igrf(lon, lat, h, date) # returns east, north, up
+Be, Bn, Bu = ppigrf.igrf(lon, lat, h, date) # returns east, north, up
 ```
 Geodetic coordinates take the ellipsoidal shape of the Earth into account. The northward component returned by the igrf function is tangential to the ellipsoid, and in general not tangential to an Earth centered sphere. The upward component is perpendicular to the ellipsoid, and in general not perpendicular to the sphere. 
 

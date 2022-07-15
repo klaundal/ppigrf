@@ -6,10 +6,21 @@ See https://www.ngdc.noaa.gov/IAGA/vmod/igrf.html for details and https://doi.or
 
 The code is vectorized, so calculations should be pretty fast.  
 
-TODO: Some more testing
 
-## How?
-The only dependencies are Numpy and Pandas. There is no install. Just copy ppigrf.py and IGRF13.shc to your working directory and you are good to go. Or have the ppigrf directory somewhere that Python can find it. Then you should be able to import like this:
+## Install
+The only dependencies are Numpy and Pandas. Install by either
+```
+pip install ppigrf
+```
+or clone the repository and run 
+```
+python setup.py install
+```
+
+Also, if you don't want to install a module but use the code in your project, just grap ppigrf.py and the .shc file (from src/ppigrf) and place it in your working directory. That's all. 
+
+## Example
+All the above choices should enable you to import like this:
 ```python
 import ppigrf
 ```
@@ -57,6 +68,7 @@ It should be straightforward to swap the IGRF .shc file with another model, but 
 
 The code is vectorized, so it will be quite fast, but probably not as fast as compiled Fortran code. One application which may require more optimization is field line tracing: In the current implementation, the coefficients are loaded and interpolated in time for every function call, which gives a lot of unnecessary overhead.
 
+Thanks to Juha Vierinen for the setup script, and for making ppigrf available via PyPI.
 
 ## Contact
 If you find errors, please let me know! 

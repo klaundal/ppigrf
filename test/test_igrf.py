@@ -10,6 +10,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 
 from ppigrf import igrf
+from ppigrf.ppigrf import yearfrac_to_datetime
 
 # Define paths to test directory and test data directory
 TEST_DIR = Path(os.path.dirname(__file__))
@@ -39,24 +40,10 @@ class TestIGRFKnownValues:
         igrf_precomputed = pd.merge(dataframes[0], dataframes[1])
         igrf_precomputed = pd.merge(igrf_precomputed, dataframes[-1])
         # Convert the data in the dataframe into a datetime object
-        date = self.decimal_date_to_datetime(igrf_precomputed.date[0])
+        decimal_date = igrf_precomputed.date.values[0]
+        (date,) = yearfrac_to_datetime([decimal_date])
         igrf_precomputed = igrf_precomputed.assign(date=date)
         return igrf_precomputed
-
-    def decimal_date_to_datetime(self, decimal_date):
-        """
-        Convert a decimal date into a datetime object
-        """
-        year = int(decimal_date)
-        remain = decimal_date - year
-        base_date = datetime(year, 1, 1)
-        date = base_date + timedelta(
-            seconds=(
-                base_date.replace(year=base_date.year + 1) - base_date
-            ).total_seconds()
-            * remain
-        )
-        return date
 
     def test_igrf(self, precomputed_igrf):
         """

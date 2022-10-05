@@ -7,7 +7,6 @@ import numpy as np
 import numpy.testing as npt
 import pandas as pd
 from pathlib import Path
-from datetime import datetime, timedelta
 
 from ppigrf import igrf
 from ppigrf.ppigrf import yearfrac_to_datetime

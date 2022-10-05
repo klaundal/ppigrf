@@ -76,7 +76,7 @@ class TestIGRFKnownValues:
         # Check if the values are equal to the expected ones
         rtol = 1e-2  # 1% of error
         atol = 1  # 1nT absolute error (for points where the component is close to 0)
-        npt.assert_allclose(b_e, igrf_precomputed.b_e, rtol=rtol, atol=atol)
+        npt.assert_allclose(b_e, precomputed_igrf.b_e, rtol=rtol, atol=atol)
         npt.assert_allclose(b_n, precomputed_igrf.b_n, rtol=rtol, atol=atol)
         npt.assert_allclose(
             b_u, -precomputed_igrf.b_z, rtol=rtol, atol=atol

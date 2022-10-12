@@ -31,6 +31,7 @@ setuptools.setup(
     ],
     install_requires=[
         'numpy>=0.13.1',
+        'pandas',
     ],
     package_dir={"": "src"},
     package_data={'':['IGRF13.shc']},

@@ -17,7 +17,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="ppigrf",
-    version="1.0.1",
+    version="1.0.2",
     author="Karl Laundal",
     author_email="readme@file.md",
     description="Pure Python IGRF",

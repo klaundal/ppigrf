@@ -603,6 +603,64 @@ def igrf(lon, lat, h, date, coeff_fn = shc_fn):
     return Be.reshape(outshape), Bn.reshape(outshape), Bu.reshape(outshape)
 
 
+def get_inclination_declination(Be, Bn, Bu, degrees=True):
+    r"""
+    Compute the inclination and declination angles of the IGRF
+
+    The inclination angle is defined as the angle between the magnetic field
+    vector and the horizontal plane:
+
+    .. math::
+
+        I = \arctan \frac{-B_u}{\sqrt{B_e^2 + B_n^2}}
+
+    And the declination angle is defined as the azimuth of the projection of
+    the magnetic field vector onto the horizontal plane (starting from the
+    northing direction, positive to the east and negative to the west):
+
+    .. math::
+
+        D = - \arcsin \frac{B_e}{\sqrt{B_e^2 + B_n^2}}
+
+    Parameters
+    ----------
+    Be : float or array
+        Easting component of the IGRF magnetic vector.
+    Bn : float or array
+        Northing component of the IGRF magnetic vector.
+    Bu : float or array
+        Upward component of the IGRF magnetic vector.
+    degrees : bool (optional)
+        If True, the angles are returned in degrees.
+        If False, the angles are returned in radians.
+        Default True.
+
+    Returns
+    -------
+    inclination : float or array
+        Inclination angle of the IGRF magnetic vector. If ``degrees`` is True,
+        then the angle is returned in degrees. If ``degrees`` is False, then
+        it's returned in radians.
+    declination : float or array
+        Declination angle of the IGRF magnetic vector. If ``degrees`` is True,
+        then the angle is returned in degrees. If ``degrees`` is False, then
+        it's returned in radians.
+    """
+    # Compute the horizontal component of B
+    horizontal_component = np.sqrt(Be**2 + Bn**2)
+    if horizontal_component == 0:
+        inclination = -np.sign(Bu) * np.pi /2
+        declination = 0
+    else:
+        # Compute the two angles
+        inclination = np.arctan(-Bu / horizontal_component)
+        declination = np.arcsin(Be / horizontal_component)
+    # Convert to degrees if needed
+    if degrees:
+        inclination = np.degrees(inclination)
+        declination = np.degrees(declination)
+    return inclination, declination
+
 
 if __name__ == '__main__':
 
@@ -627,4 +685,3 @@ if __name__ == '__main__':
     h   = 0
     dates = [datetime(y, 1, 1) for y in np.arange(1960, 2021, 20)]
     Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
-

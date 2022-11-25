@@ -61,17 +61,22 @@ class TestIGRFKnownValues:
     Test the IGRF field against precomputed values
     """
 
+    rtol = 1e-2  # 1% of error
+
     @pytest.mark.parametrize(
-        "date",
-        [datetime(2020, 1, 1), datetime(2022, 10, 5)],
+        "date, atol",
+        [[datetime(2020, 1, 1), 1], [datetime(2022, 10, 5), 4]],
         ids=["2020-01-01", "2022-10-05"],
     )
-    def test_igrf(self, date):
+    def test_igrf(self, date, atol):
         """
         Test IGRF against the precomputed values
 
         The test on 2020-01-01 doesn't involve any interpolation on the
-        dates.
+        dates. The atol (in nT) has been chosen for each case to account points
+        where the component is close to zero. For the second date that involves
+        an interpolation in time the atol has been increased to account for
+        differences due to different types of dates interpolations.
         """
         # Get precomputed IGRF field
         precomputed_igrf = load_precomputed_igrf(date)
@@ -87,10 +92,8 @@ class TestIGRFKnownValues:
         # Ravel the arrays
         b_e, b_n, b_u = tuple(np.ravel(component) for component in (b_e, b_n, b_u))
         # Check if the values are equal to the expected ones
-        rtol = 1e-2  # 1% of error
-        atol = 1  # 1nT absolute error (for points where the component is close to 0)
-        npt.assert_allclose(b_e, precomputed_igrf.b_e, rtol=rtol, atol=atol)
-        npt.assert_allclose(b_n, precomputed_igrf.b_n, rtol=rtol, atol=atol)
+        npt.assert_allclose(b_e, precomputed_igrf.b_e, rtol=self.rtol, atol=atol)
+        npt.assert_allclose(b_n, precomputed_igrf.b_n, rtol=self.rtol, atol=atol)
         npt.assert_allclose(
-            b_u, -precomputed_igrf.b_z, rtol=rtol, atol=atol
+            b_u, -precomputed_igrf.b_z, rtol=self.rtol, atol=atol
         )  # invert the direction of b_z

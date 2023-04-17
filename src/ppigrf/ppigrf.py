@@ -620,7 +620,7 @@ def get_inclination_declination(Be, Bn, Bu, degrees=True):
 
     .. math::
 
-        D = - \arcsin \frac{B_e}{\sqrt{B_e^2 + B_n^2}}
+        D = \arcsin \frac{B_e}{\sqrt{B_e^2 + B_n^2}}
 
     Parameters
     ----------

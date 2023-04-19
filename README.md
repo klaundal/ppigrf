@@ -55,6 +55,29 @@ Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
 ```
 The output will have shape `(4, 2, 3)`.
 
+## How to test?
+
+It is possible to run some tests that corroborates that `ppigrf` works as
+expected. To do so you need to install [`pytest`](https://docs.pytest.org). You
+can do so through `pip`:
+
+```
+pip install pytest
+```
+
+Then you need to clone this repository and install `ppigrf`:
+
+```
+python setup.py install
+```
+
+Finally you can test the installed version of `ppigrf` with:
+
+```
+pytest -v
+```
+
+
 ## Why?
 There are lots of Python modules that can calculate IGRF values. Most are wrappers of Fortran code, which can be tricky to compile. This version is pure Python. For most applications it is still quite fast. I also prefer the ppigrf interface over the alternatives. 
 

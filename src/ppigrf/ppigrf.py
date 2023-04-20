@@ -348,6 +348,7 @@ def geod2geoc(gdlat, height, Bn, Bu):
 
     return theta, r, B_th, B_r
  
+
 def geoc2geod(theta, r, B_th, B_r):
     """
     Convert from geodetic to geocentric coordinates
@@ -450,7 +451,7 @@ def igrf_gc(r, theta, phi, date, coeff_fn = shc_fn):
     of the broadcasting, so that the output will have shape
     (N, ...) where N is the number of dates, and ... represents
     the combined shape of the coordinates. If you pass scalars,
-    the output will be arrays of shape (1, 1)
+    the output will be arrays of shape (1,)
     
     Parameters
     ----------
@@ -488,12 +489,9 @@ def igrf_gc(r, theta, phi, date, coeff_fn = shc_fn):
         print('Warning: You provided date(s) not covered by coefficient file \n({} to {})'.format(
               g.index[0].date(), g.index[-1].date()))
 
-    # convert input to arrays in case they aren't
-    r, theta, phi = tuple(map(lambda x: np.array(x, ndmin = 1), [r, theta, phi]))
-
     # get coordinate arrays to same size and shape
-    shape = np.broadcast_shapes(r.shape, theta.shape, phi.shape)
-    r, theta, phi = map(lambda x: np.broadcast_to(x, shape)   , [r, theta, phi])
+    r, theta, phi = np.broadcast_arrays(r, theta, phi)
+    shape = r.shape
     r, theta, phi = map(lambda x: x.flatten().reshape((-1 ,1)), [r, theta, phi]) # column vectors
 
     # make row vectors of wave numbers n and m:
@@ -554,7 +552,7 @@ def igrf(lon, lat, h, date, coeff_fn = shc_fn):
     of the broadcasting, so that the output will have shape
     (N, ...) where N is the number of dates, and ... represents
     the combined shape of the coordinates. If you pass scalars,
-    the output will be arrays of shape (1, 1)
+    the output will be arrays of shape (1,)
     
     Parameters
     ----------
@@ -582,9 +580,8 @@ def igrf(lon, lat, h, date, coeff_fn = shc_fn):
     """
 
     # convert input to arrays and cast to same shape:
-    lon, lat, h = tuple(map(lambda x: np.array(x, ndmin = 1), [lon, lat, h]))
-    shape = np.broadcast_shapes(lon.shape, lat.shape, h.shape)
-    lon, lat, h = map(lambda x: np.broadcast_to(x, shape), [lon, lat, h])
+    lon, lat, h = np.broadcast_arrays(lon, lat, h)
+    shape = lon.shape
     lon, lat, h = map(lambda x: x.flatten(), [lon, lat, h])
 
     # convert to geocentric:
@@ -601,6 +598,91 @@ def igrf(lon, lat, h, date, coeff_fn = shc_fn):
     # return with shapes implied by input
     outshape = tuple([Be.shape[0]] + list(shape))
     return Be.reshape(outshape), Bn.reshape(outshape), Bu.reshape(outshape)
+
+
+def igrf_V(r, theta, phi, date, coeff_fn = shc_fn):
+    """
+    Calculate IGRF magnetic potential
+
+    Input and output in geocentric coordinates
+
+    Broadcasting rules apply for coordinate arrays, and the
+    combined shape will be preserved. The dates are kept out
+    of the broadcasting, so that the output will have shape
+    (N, ...) where N is the number of dates, and ... represents
+    the combined shape of the coordinates. If you pass scalars,
+    the output will be arrays of shape (1,)
+    
+    Parameters
+    ----------
+    r : array
+        radius [km] of IGRF calculation
+    theta : array
+        colatitude [deg] of IGRF calculation
+    phi : array
+        longitude [deg], positive east, of IGRF claculation
+    date : date(s)
+        one or more dates to evaluate IGRF coefficients
+    coeff_fn : string, optional
+        filename of .shc file. Default is latest IGRF
+
+    Return
+    ------
+    V : array
+        Magnetic potential (unit nT * km)
+    """
+
+    # read coefficient file:
+    g, h = read_shc(coeff_fn)
+
+    if not hasattr(date, '__iter__'):
+        date = np.array([date])
+    else:
+        date = np.array(date)
+
+    if np.any(date > g.index[-1]) or np.any(date < g.index[0]):
+        print('Warning: You provided date(s) not covered by coefficient file \n({} to {})'.format(
+              g.index[0].date(), g.index[-1].date()))
+
+    # convert input to arrays in case they aren't
+    r, theta, phi = np.broadcast_arrays(r, theta, phi)
+    shape = r.shape
+    r, theta, phi = map(lambda x: x.flatten().reshape((-1 ,1)), [r, theta, phi]) # column vectors
+
+    # make row vectors of wave numbers n and m:
+    n, m = np.array([k for k in g.columns]).T
+    n, m = n.reshape((1, -1)), m.reshape((1, -1))
+
+    # get maximum N and maximum M:
+    N, M = np.max(n), np.max(m)
+
+    # get the legendre functions
+    P, dP = get_legendre(theta, g.keys())
+
+    # Append coefficients at desired times (skip if index is already in coefficient data frame):
+    index = g.index.union(date)
+
+    g = g.reindex(index).groupby(index).first() # reindex and skip duplicates
+    h = h.reindex(index).groupby(index).first() # reindex and skip duplicates
+
+    # interpolate and collect the coefficients at desired times:
+    g = g.interpolate(method = 'time').loc[date, :]
+    h = h.interpolate(method = 'time').loc[date, :]
+
+    # compute cosmlon and sinmlon:
+    cosmphi = np.cos(phi * d2r * m) # shape (n_coords x n_model_params/2)
+    sinmphi = np.sin(phi * d2r * m)
+
+    # make versions of n and m that are repeated twice
+    nn, mm = np.tile(n, 2), np.tile(m, 2)
+
+    # calculate Br:
+    G  = RE * (RE / r) ** (nn + 1) * np.hstack((P * cosmphi, P * sinmphi))
+    V = G.dot(np.hstack((g.values, h.values)).T).T # shape (n_times, n_coords)
+
+    # reshape and return
+    outshape = tuple([V.shape[0]] + list(shape))
+    return V.reshape(outshape)
 
 
 def get_inclination_declination(Be, Bn, Bu, degrees=True):
@@ -671,17 +753,17 @@ if __name__ == '__main__':
     lat = 60.39299 # degrees north
     h   = 0        # kilometers above sea level
     date = datetime(2021, 3, 28)
-    Be, Bn, Bu = ppigrf.igrf(lon, lat, h, date) # returns east, north, up
+    Be, Bn, Bu = igrf(lon, lat, h, date) # returns east, north, up
 
     # GEOCENTRIC
     r     = 6500 # kilometers from center of Earht
     theta = 30   # colatitude in degrees
     phi   = 4    # degrees east (same as lon)
-    Br, Btheta, Bphi = ppigrf.igrf_gc(r, theta, phi, date) # returns radial, south, east
+    Br, Btheta, Bphi = igrf_gc(r, theta, phi, date) # returns radial, south, east
 
     # GRID
     lon = np.array([20, 120, 220])
     lat = np.array([[60, 60, 60], [-60, -60, -60]])
     h   = 0
     dates = [datetime(y, 1, 1) for y in np.arange(1960, 2021, 20)]
-    Be, Bn, Bu = ppigrf.igrf(lon, lat, h, dates)
+    Be, Bn, Bu = igrf(lon, lat, h, dates)

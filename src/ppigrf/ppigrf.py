@@ -134,8 +134,8 @@ def yearfrac_to_datetime(fracyear):
     """
 
     year = np.uint16(fracyear) # truncate fracyear to get year
-    # use pandas TimedeltaIndex to represent time since beginning of year: 
-    delta_year = pd.TimedeltaIndex((fracyear - year)*(365 + is_leapyear(year)), unit = 'D')
+    # use pandas to_timedelta to represent time since beginning of year: 
+    delta_year = pd.to_timedelta((fracyear - year)*(365 + is_leapyear(year)), unit = 'D')
     # and DatetimeIndex to represent beginning of years:
     start_year = pd.DatetimeIndex(list(map(str, year)))
  

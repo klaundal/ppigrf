@@ -670,8 +670,8 @@ def igrf_V(r, theta, phi, date, coeff_fn = shc_fn):
     h = h.interpolate(method = 'time').loc[date, :]
 
     # compute cosmlon and sinmlon:
-    cosmphi = np.cos(phi * d2r * m) # shape (n_coords x n_model_params/2)
-    sinmphi = np.sin(phi * d2r * m)
+    cosmphi = np.cos(np.deg2rad(phi * m)) # shape (n_coords x n_model_params/2)
+    sinmphi = np.sin(np.deg2rad(phi * m))
 
     # make versions of n and m that are repeated twice
     nn, mm = np.tile(n, 2), np.tile(m, 2)

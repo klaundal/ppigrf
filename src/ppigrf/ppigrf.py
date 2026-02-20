@@ -545,8 +545,22 @@ def igrf_gc(r, theta, phi, date, coeff_fn = shc_fn, min_degree=1, max_degree=13)
     Btheta = G.dot(np.hstack((g.values, h.values)).T).T # shape (n_times, n_coords)
 
     # calculate Bphi:
-    G  = - N_map * (RE / r) ** (nn + 1) * mm * np.hstack((-P * sinmphi, P * cosmphi)) \
-         * RE / r / np.sin(np.radians(theta))
+    # Need P(n,m) / sin(theta), but this is 0/0 at the poles.
+    # Apply L'Hôpital's rule at poles (theta = 0° or 180°):
+    #   lim P(n,m)/sin(theta) = dP(n,m)/dtheta * cos(theta)
+    # See: https://github.com/ancklo/ChaosMagPy/blob/master/chaosmagpy/model_utils.py
+    sinth = np.sin(np.radians(theta))
+    costh = np.cos(np.radians(theta))
+    where_poles = (sinth == 0).flatten()
+
+    P_over_sinth = np.empty_like(P)
+    P_over_sinth[~where_poles] = P[~where_poles] / sinth[~where_poles]
+    # At poles: use L'Hôpital limit dP/dtheta * cos(theta)
+    P_over_sinth[where_poles] = dP[where_poles] * costh[where_poles]
+
+    numerator = np.hstack((-P_over_sinth * sinmphi, P_over_sinth * cosmphi))
+    G = - N_map * (RE / r) ** (nn + 1) * mm * numerator * RE / r
+
     Bphi = G.dot(np.hstack((g.values, h.values)).T).T # shape (n_times, n_coords)
 
     # reshape and return
